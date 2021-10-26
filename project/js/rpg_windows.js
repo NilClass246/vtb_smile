@@ -4261,11 +4261,12 @@ Window_Message.prototype.constructor = Window_Message;
 Window_Message.prototype.initialize = function() {
     var width = this.windowWidth();
     var height = this.windowHeight();
-    var x = (Graphics.boxWidth - width+ Graphics.boxWidth*(1/5)) / 2
+    var x = 0;
+    //(Graphics.boxWidth - width+ Graphics.boxWidth*(1/5)) / 2
     //Graphics.boxWidth*(1/5);
     Window_Base.prototype.initialize.call(this, x, 0, width, height);
     //todo: changed
-    //this.openness = 0;
+    this.openness = 0;
     this.initMembers();
     this.createSubWindows();
     this.updatePlacement();
@@ -4296,7 +4297,8 @@ Window_Message.prototype.createSubWindows = function() {
 };
 
 Window_Message.prototype.windowWidth = function() {
-    return Graphics.boxWidth*(4/5);
+    return Graphics.boxWidth;
+    //*(4/5);
 };
 
 Window_Message.prototype.windowHeight = function() {
@@ -4374,7 +4376,8 @@ Window_Message.prototype.updatePlacement = function() {
         this.width = Graphics.boxWidth;
     }else{
         this.width = this.windowWidth()
-        this.x = (Graphics.boxWidth - this.windowWidth()+ Graphics.boxWidth*(1/5)) / 2
+        this.x = 0;
+        //(Graphics.boxWidth - this.windowWidth()+ Graphics.boxWidth*(1/5)) / 2
     }
 
     this.y = this._positionType * (Graphics.boxHeight - this.height) / 2;
@@ -4392,7 +4395,7 @@ Window_Message.prototype.updateBackground = function() {
 
 Window_Message.prototype.terminateMessage = function() {
     //todo: changed
-    //this.close();
+    this.close();
     this._goldWindow.close();
     this.contents.clear();
     $gameMessage.clear();

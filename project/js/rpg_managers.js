@@ -2826,7 +2826,7 @@ PluginManager.setParameters = function(name, parameters) {
 };
 
 PluginManager.loadScript = function(name) {
-	var version =3.13;
+	var version =0.01;
     var url = this._path + name+"?v="+version;
     var script = document.createElement('script');
     script.type = 'text/javascript';
