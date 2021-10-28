@@ -174,7 +174,8 @@ TDDP.bootPreloadBGS = [
 */
 TDDP.bootPreloadSE = [
     // "Open2"
-    "按下开始游戏"
+    "按下开始游戏",
+    "推倒垃圾桶"
 ]
 /*
 *

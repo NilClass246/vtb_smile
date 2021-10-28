@@ -41,12 +41,11 @@ RepairGame.prototype.initialize = function(difficulty){
     this.cursor.x = -length/2;
     this.addChild(this.cursor);
     this.step = length*(1/this.amount);
-    this.direction = 1;
 }
 
 RepairGame.prototype.update = function(){
     if(!this.exiting){
-        if(Input.isTriggered('ok')||TouchInput.isTriggered()){
+        if((Input.isTriggered('ok')||TouchInput.isTriggered()||this.current_amount>=this.amount)&&this.ready){
             if(this.current_amount>=this.start_amount&&this.current_amount<=this.start_amount+this.selected_amount){
                 SmileManager.lastRepairingSuccess = true;
                 this.exiting = true;
@@ -56,11 +55,8 @@ RepairGame.prototype.update = function(){
             }
             SmileManager.onEndingRepair = true;
         }
-        this.current_amount+= this.direction*1;
-        this.cursor.x += this.step*this.direction
-        if(this.current_amount>=this.amount||this.current_amount<=0){
-            this.direction*=-1
-        }
+        this.current_amount+= 1;
+        this.cursor.x += this.step
     }else{
         if(!this.exited){
             if(SmileManager.lastRepairingSuccess){
@@ -91,9 +87,14 @@ RepairGame.prototype.update = function(){
                 })
                 SoundManager.playBuzzer();
             }
+            SmileManager.RT.exit();
             this.exited = true;
         }
     }
+}
+
+RepairGame.prototype.getReady = function(){
+    this.ready= true;
 }
 
 function RepairText(){
@@ -103,6 +104,46 @@ function RepairText(){
 RepairText.prototype = Object.create(Sprite.prototype);
 RepairText.prototype.constructor = Object.create(Sprite.prototype);
 
+RepairText.prototype.initialize = function(){
+    Sprite.prototype.initialize.call(this);
+    this.bitmap = new Bitmap(100, 72);
+    this.progress = 0;
+    // (text, x, y, maxWidth, lineHeight, align)
+    this.bitmap.drawText("{reparing}", 0, 0, 100, 36, "center");
+    this.bitmap.drawText(this.progress+ "/5", 0, 36, 100, 36, "center");
+    this.opacity = 0;
+    this.direction = 1;
+}
+
+RepairText.prototype.update = function(){
+    Sprite.prototype.update.call(this);
+    if(!this.exiting){
+        this.opacity+=this.direction*5;
+        if(this.opacity>=255||this.opacity<=0){
+            this.direction*=-1;
+        }
+    }
+}
+
+RepairText.prototype.refreshProgress = function(){
+    this.progress = 5-$gameVariables.value(46);
+    console.log($gameVariables.value(46));
+    this.bitmap.clear();
+    this.bitmap.drawText("{reparing}", 0, 0, 100, 36, "center");
+    console.log(this.progress)
+    console.log(this.progress+ "/5")
+    this.bitmap.drawText(this.progress+ "/5", 0, 36, 100, 36, "center");
+}
+
+RepairText.prototype.exit = function(){
+    this.exiting = true;
+    gsap.to(this, 1, {
+        opacity: 0,
+        ease: Elastic.easeOut.config(1, 0.3),
+        onComplete: this.destroy()
+    })
+}
+
 SmileManager.startRepairing = function(){
     this.RG = new RepairGame(2);
     this.RG.move(0-Graphics.boxWidth/2, Graphics.boxHeight/2);
@@ -110,8 +151,14 @@ SmileManager.startRepairing = function(){
     gsap.to(this.RG, 1, {
         x: Graphics.boxWidth/2,
         y: this.RG.y,
-        ease: Power2.easeOut
+        ease: Power2.easeOut,
+        onComplete: this.RG.getReady()
     })
+
+    this.RT = new RepairText();
+    this.RT.move((Graphics.boxWidth-100)/2, 200);
+    SceneManager._scene.addChild(this.RT);
+
 }
 
 
@@ -140,6 +187,9 @@ HPbar.prototype.update = function(){
 }
 
 //========================================
+// 追逐战！
+SmileManager.isSensored = false;
+
 SmileManager.randomnize = function(p){
     var r = Math.random()*100;
     return r<p*100;
@@ -148,5 +198,9 @@ SmileManager.randomnize = function(p){
 SmileManager.calcDistance = function(){
 
 }
+
+SmileManager.temps = SmileManager.temps || {};
+
+SmileManager.justMoved = false;
 
 

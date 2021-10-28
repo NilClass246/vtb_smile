@@ -2011,6 +2011,8 @@
                 if(!$gameSwitches.value(sw)) {
                     $gameSwitches.setValue(sw, true);
                 }
+                // changed 和smile融合
+                SmileManager.isSensored = true;
                 // $gameSystem.setSwitchStatuses(sw, eventId);
             } else if(sw.match(/[a-dA-D]/)) {
                 key = [mapId, eventId, sw.toUpperCase()];
@@ -2026,6 +2028,8 @@
                     if($gameSwitches.value(sw)) {
                         $gameSwitches.setValue(sw, false);
                     }
+                    // changed 和smile融合
+                    SmileManager.isSensored = false;
                 } else if(sw.match(/[a-dA-D]/)) {
                     key = [mapId, eventId, sw.toUpperCase()];
                     if($gameSelfSwitches.value(key)) {
@@ -2074,6 +2078,8 @@
                 if($gameSwitches.value(sw)) {
                     $gameSwitches.setValue(sw, false);
                 }
+                // changed 和smile融合
+                SmileManager.isSensored = false;
                 // $gameSystem.removeSwitchStatuses(sw, eventId);
             } else if(sw.match(/[a-dA-D]/)) {
                 key = [mapId, eventId, sw.toUpperCase()];
@@ -2089,6 +2095,8 @@
                     if(!$gameSwitches.value(sw)) {
                         $gameSwitches.setValue(sw, true);
                     }
+                    // changed 和smile融合
+                    SmileManager.isSensored = true;
                 } else if(sw.match(/[a-dA-D]/)) {
                     key = [mapId, eventId, sw.toUpperCase()];
                     if(!$gameSelfSwitches.value(key)) {

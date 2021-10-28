@@ -317,7 +317,8 @@ Scene_Map.prototype.start = function() {
             BirthdayManager.restoreCakeScene();
         }
     }
-    BirthdayManager.manageSkinAndFace();
+    //BirthdayManager.manageSkinAndFace();
+    BirthdayManager.changeFace("mea");
     $gameSwitches.setValue(58, true); 
 };
 
@@ -354,10 +355,26 @@ TouchInput.isOnWindow = function(){
 //标题
 
 Scene_Title.prototype.createBackground = function() {
-    this._backSprite1 = new Sprite(ImageManager.loadTitle1("bg"));
-    this._backSprite1.scale.x = Graphics.boxWidth/375;
-    this._backSprite1.scale.y = Graphics.boxHeight/812;
+    this._backSprite1 = new Sprite(ImageManager.loadTitle1("底图"));
+    this.scaleBackground(this._backSprite1);
     this.addChild(this._backSprite1);
+
+    this._backSprite2 = new Sprite(ImageManager.loadTitle1("阴影"));
+    this.scaleBackground(this._backSprite2);
+    this.addChild(this._backSprite2);
+
+    this._backSprite3 = new Sprite(ImageManager.loadTitle1("黑脸"));
+    this.scaleBackground(this._backSprite3);
+    this.addChild(this._backSprite3);
+
+    this._backSprite4 = new Sprite(ImageManager.loadTitle1("标题"));
+    this.scaleBackground(this._backSprite4);
+    var n = 375*(Graphics.boxHeight/1080)-Graphics.boxWidth/2
+    if(n>-20){
+        this._backSprite4.x+= n+20;
+    }
+    this.addChild(this._backSprite4);
+
 //     //this._backSprite2 = new Sprite(ImageManager.loadTitle1("8"));
 //     //this._backSprite2.scale.x = Graphics.boxWidth/375;
 //     //this._backSprite2.scale.y = Graphics.boxHeight/812;
@@ -393,6 +410,15 @@ Scene_Title.prototype.createBackground = function() {
 //     this._backSprite8.move(0,0,Graphics.boxWidth,168);
 //     this.addChild(this._backSprite8);
 };
+
+Scene_Title.prototype.scaleBackground = function(s){
+    var yrate = Graphics.boxHeight/1080;
+    s.scale.x = yrate;
+    s.scale.y = yrate;
+    s.anchor.x = 0.5;
+    s.x = Graphics.boxWidth/2;
+    s.y = 0;
+}
 
 
 Scene_Title.prototype.createForeground = function() {
@@ -1525,18 +1551,18 @@ Window_Credits.prototype.terminateMessage = function() {
 //制作上下窗口
 BirthdayManager.temps._Scene_Map_createAllWindows = Scene_Map.prototype.createAllWindows;
 Scene_Map.prototype.createAllWindows = function() {
-    // this.hidingCount = 0;
-    // this.showingCount = 0;
+     this.hidingCount = 0;
+     this.showingCount = 0;
     BirthdayManager.temps._Scene_Map_createAllWindows.call(this);
-    // var upperFaceSize = Graphics.boxHeight/6
-    // this._TaskWindow = new Window_Task();
-    // //this._TaskWindow.drawText("任务……", 0, 0);
-    // this._FaceWindow = new Window_Face(upperFaceSize);
+     var upperFaceSize = Graphics.boxHeight/6
+     this._TaskWindow = new Window_Task();
+     //this._TaskWindow.drawText("任务……", 0, 0);
+     this._FaceWindow = new Window_Face(upperFaceSize);
     // this._button1 = new Window_Side_Backup(0, this._messageWindow.y , Graphics.boxWidth*(1/5), this._messageWindow.height/2);
     // this._button2 = new Window_Side_Options(0, this._messageWindow.y+this._messageWindow.height/2 , Graphics.boxWidth*(1/5), this._messageWindow.height/2);
     // //this._CakeListWindow = new Window_CakeList(upperFaceSize);
-    // this.addWindow(this._TaskWindow);
-    // this.addWindow(this._FaceWindow);
+     this.addWindow(this._TaskWindow);
+     this.addWindow(this._FaceWindow);
     //     this._InfoWindow = new Window_Info();
     // this.addWindow(this._InfoWindow);
     // this.addWindow(this._button1);
@@ -2913,6 +2939,7 @@ Window_Task.prototype.initialize = function(){
     if(BirthdayManager.currentTask){
         this.startMessage(DKTools.Localization.getText("<WordWrap>"+BirthdayManager.currentTask))
     }
+    this.open();
 }
 
 Window_Task.prototype.updatePlacement = function() {
@@ -2936,6 +2963,7 @@ Window_Task.prototype.terminateMessage = function() {
     this._positionType = 2;
     this.updatePlacement();
     this.setBackgroundType(0);
+    this.open();
 };
 
 Window_Task.prototype.update = function() {
