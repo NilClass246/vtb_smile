@@ -196,8 +196,56 @@ SmileManager.randomnize = function(p){
 }
 
 SmileManager.calcDistance = function(){
+    var dx = $gameVariables.value(50);
+    var dy = $gameVariables.value(51);
+    
+    var distance1 = 20;
+    var distance2 = 10;
 
+    if(dx>distance1||dy>distance1){
+        
+    }
 }
+
+SmileManager.findEmptySlot = function(){
+    var playerX = $gamePlayer.x;
+    var playerY = $gamePlayer.y;
+
+    var slotList = this.generateSlots(playerX, playerY, 7, 5);
+    var slot = slotList[Math.floor(Math.random()*slotList.length)];
+    $gameVariables.setValue(48, slot[0]);
+    $gameVariables.setValue(49, slot[1]);
+}
+
+SmileManager.generateSlots = function(x, y, r, t) {
+    var x1 = x-r;
+    var x2 = x+r;
+    var xt1 = x-t;
+    var xt2 = x+t
+    var y1 = y-r;
+    var y2 = y+r;
+    var yt1 = y-t;
+    var yt2 = y+t;
+
+    var slotList = [];
+    for(var i = x1; i < x2; i++){
+        for(var j = y1; j<y2; j++){
+            if((i>xt1)&&(i<xt2)&&(j>yt1)&&(j<yt2)){
+                // pass
+            }else{
+                if($gameMap.isGenerallyPassable(i, j)){
+                    slotList.push([i, j]);
+                }
+            }
+        }
+    }
+
+    return slotList;
+}
+
+Game_Map.prototype.isGenerallyPassable = function(x, y) {
+    return (this.isPassable(x, y, 2)&&this.isPassable(x, y, 4)&&this.isPassable(x, y, 6)&&this.isPassable(x, y, 8)&&x>0&&y>0&&x<75&&y<53);
+};
 
 SmileManager.temps = SmileManager.temps || {};
 
