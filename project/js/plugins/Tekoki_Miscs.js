@@ -192,7 +192,6 @@ Scene_Title.prototype.initialize = function() {
     var d = new Date();
     var month = d.getMonth()+1;
     var day = d.getDate();
-    console.log("month:"+month+" day:"+day);
     if(month==8&&day==2){
         BirthdayManager.unlockAchievement(21);
     }
@@ -1572,60 +1571,64 @@ Scene_Map.prototype.createAllWindows = function() {
 };
 
 Scene_Map.prototype.hideAllWindows = function(){
-    this.hidingWindows = true;
+    this._FaceWindow.hide();
+    this._TaskWindow.hide();
+    //this.hidingWindows = true;
 }
 
 Scene_Map.prototype.showAllWindows = function(){
-    this._messageWindow.x = Graphics.boxWidth;
-    this._messageWindow.width = this._messageWindow.windowWidth();
-    this.showingWindows = true;
+    this._FaceWindow.show();
+    this._TaskWindow.show();
+    // this._messageWindow.x = Graphics.boxWidth;
+    // this._messageWindow.width = this._messageWindow.windowWidth();
+    // this.showingWindows = true;
 }
 
 BirthdayManager.temps.Scene_Map_prototype_update = Scene_Map.prototype.update;
 Scene_Map.prototype.update = function(){
     BirthdayManager.temps.Scene_Map_prototype_update.call(this);
-    if(this.hidingWindows){
-        if(this.hidingCount<60){
-            this.hidingCount+=1;
-            var disctance = Graphics.boxWidth/60;
-            this._TaskWindow.x -= disctance;
-            this._FaceWindow.x -= disctance;
+    // if(this.hidingWindows){
+    //     if(this.hidingCount<60){
+    //         this.hidingCount+=1;
+    //         var disctance = Graphics.boxWidth/60;
+    //         this._TaskWindow.x -= disctance;
+    //         this._FaceWindow.x -= disctance;
 
-            this._messageWindow.x+=disctance;
-            this._InfoWindow.x+=disctance;
-            this._button1.x+=disctance;
-            this._button1.deactivate();
-            this._button2.x+=disctance;
-            this._button2.deactivate();
+    //         this._messageWindow.x+=disctance;
+    //         this._InfoWindow.x+=disctance;
+    //         this._button1.x+=disctance;
+    //         this._button1.deactivate();
+    //         this._button2.x+=disctance;
+    //         this._button2.deactivate();
 
-        }else{
-            this.hidingCount = 0;
-            this.hidingWindows = false;
-            this._button1.activate();
-            this._button2.activate();
-        }
-    }
+    //     }else{
+    //         this.hidingCount = 0;
+    //         this.hidingWindows = false;
+    //         this._button1.activate();
+    //         this._button2.activate();
+    //     }
+    // }
 
-    if(!this.hidingWindows&&this.showingWindows){
-        if(this.showingCount<60){
-            this.showingCount+=1;
-            var disctance = Graphics.boxWidth/60;
-            this._TaskWindow.x += disctance;
-            this._FaceWindow.x += disctance;
+    // if(!this.hidingWindows&&this.showingWindows){
+    //     if(this.showingCount<60){
+    //         this.showingCount+=1;
+    //         var disctance = Graphics.boxWidth/60;
+    //         this._TaskWindow.x += disctance;
+    //         this._FaceWindow.x += disctance;
 
-            this._messageWindow.x =(Graphics.boxWidth - this._messageWindow.windowWidth()+ Graphics.boxWidth*(1/5)) / 2+Graphics.boxWidth-disctance*this.showingCount;
-            this._InfoWindow.x-=disctance;
-            this._button1.x-=disctance;
-            this._button1.deactivate();
-            this._button2.x-=disctance;
-            this._button2.deactivate();
-        }else{
-            this.showingCount=0;
-            this.showingWindows = false;
-            this._button1.activate();
-            this._button2.activate();
-        }
-    }
+    //         this._messageWindow.x =(Graphics.boxWidth - this._messageWindow.windowWidth()+ Graphics.boxWidth*(1/5)) / 2+Graphics.boxWidth-disctance*this.showingCount;
+    //         this._InfoWindow.x-=disctance;
+    //         this._button1.x-=disctance;
+    //         this._button1.deactivate();
+    //         this._button2.x-=disctance;
+    //         this._button2.deactivate();
+    //     }else{
+    //         this.showingCount=0;
+    //         this.showingWindows = false;
+    //         this._button1.activate();
+    //         this._button2.activate();
+    //     }
+    // }
 
 }
 

@@ -4,6 +4,141 @@ var SmileManager = SmileManager || {};
 
 SmileManager.onEndingRepair = false;
 SmileManager.lastRepairingSuccess = false;
+SmileManager.onEndingRepairManager = false; 
+SmileManager.isRepairingFinished  = false;
+
+SmileManager.getGeneratorPositions = function(){
+    var positions = [1];
+    var results = [];
+    for (var i = 0; i< 5; i++){
+        if(positions.length>0){
+            results.push(positions.splice(Math.random()*positions.length, 1)[0]);
+        }else{
+            break;
+        }
+    }
+    return results;
+}
+
+function RepairGameManager(){
+    this.initialize.apply(this, arguments);
+}
+
+RepairGameManager.prototype = Object.create(Sprite.prototype);
+RepairGameManager.prototype.constructor = RepairGameManager;
+
+RepairGameManager.prototype.initialize = function(ID){
+    Sprite.prototype.initialize.call(this);
+    this.maxProgress = 180;
+    this.ID = ID;
+    this.progress = $gameVariables.value(ID);
+    this.progressBar = new RepairProgressBar();
+    this.progressBar.setProgress(this.progress/this.maxProgress);
+    this.addChild(this.progressBar);
+    this.currentGame = null;
+    this.isInGame = false;
+
+    this.exitButton = new RepairExitButton(this);
+    this.exitButton.y=Graphics.boxHeight-36;
+    this.addChild(this.exitButton);
+    this.renderRepairGame();
+}
+
+RepairGameManager.prototype.update = function(){
+    Sprite.prototype.update.call(this);
+
+    if(!this.isInGame){
+        this.progress+=1;
+        this.progressBar.setProgress(this.progress/this.maxProgress);
+        if(this.progress==this.maxProgress){
+            this.onSuccess();
+        }
+        //50概率进入游戏
+        if(SmileManager.randomnize(0.03)){
+            this.renderRepairGame();
+        }
+    }
+
+    if(SmileManager.onEndingRepair){
+        if(SmileManager.lastRepairingSuccess){
+            this.isInGame=false;
+        }else{
+            this.onFailure();
+        }
+        SmileManager.onEndingRepair = false;
+    }
+
+    if(SmileManager.GetHp()<=0){
+        this.selfExiting();
+    }
+
+    if(TouchInput.isTriggered()){
+        var t = this.isTouched(this.exitButton);
+        console.log(t);
+        if(t){
+            this.selfExiting();
+        }
+        if(this.isInGame&&!t){
+            this.currentGame.touch();
+        }
+    }
+
+    if(Input.isTriggered("ok")){
+        this.currentGame.touch();
+    }
+
+    if(Input.isTriggered("cancel")){
+        this.selfExiting();
+    }
+}
+
+RepairGameManager.prototype.selfExiting = function(){
+    SmileManager.isRepairingFinished = false;
+    SmileManager.isSelfExiting = true;
+    SceneManager._scene.removeChild(this.currentGame);
+    this.terminate();
+}
+
+RepairGameManager.prototype.onFailure = function(){
+    SmileManager.isRepairingFinished = false;
+    this.terminate();
+}
+
+RepairGameManager.prototype.onSuccess = function(){
+    SmileManager.isRepairingFinished = true;
+    this.terminate();
+}
+
+RepairGameManager.prototype.terminate = function(){
+    SmileManager.onEndingRepairManager = true;
+    this.isInGame = false;
+    console.log(this.ID);
+    $gameVariables.setValue(this.ID, this.progress);
+    this.destroy();
+}
+
+RepairGameManager.prototype.renderRepairGame = function(){
+    this.isInGame = true;
+    this.currentGame = new RepairGame($gameVariables.value(56));
+    SceneManager._scene.addChild(this.currentGame);
+
+    this.currentText = new RepairText();
+    this.currentText.move((Graphics.boxWidth-100)/2, 200);
+    this.addChild(this.currentText);
+}
+
+RepairGameManager.prototype.isTouched = function(sprite){
+    var cw = sprite.bitmap.width;
+    var ch = sprite.bitmap.height;
+    //console.log(cw);
+
+    if (TouchInput.x < sprite.x) {return false};
+    if (TouchInput.x > sprite.x + cw) {return false};
+    if (TouchInput.y < sprite.y) {return false};
+    if (TouchInput.y > sprite.y + ch) {return false};
+    return true;	
+
+}
 
 function RepairGame(){
     this.initialize.apply(this, arguments);
@@ -12,40 +147,84 @@ function RepairGame(){
 RepairGame.prototype = Object.create(Sprite.prototype);
 RepairGame.prototype.constructor = RepairGame;
 
+/**
+ * Performs a block transfer.
+ *
+ * @method blt
+ * @param {Bitmap} source The bitmap to draw
+ * @param {Number} sx The x coordinate in the source
+ * @param {Number} sy The y coordinate in the source
+ * @param {Number} sw The width of the source image
+ * @param {Number} sh The height of the source image
+ * @param {Number} dx The x coordinate in the destination
+ * @param {Number} dy The y coordinate in the destination
+ * @param {Number} [dw=sw] The width to draw the image in the destination
+ * @param {Number} [dh=sh] The height to draw the image in the destination
+ */
+ //Bitmap.prototype.blt = function(source, sx, sy, sw, sh, dx, dy, dw, dh) {
+
 RepairGame.prototype.initialize = function(difficulty){
     Sprite.prototype.initialize.call(this);
     var xrate = Graphics.boxWidth/375;
     var yrate = Graphics.boxHeight/812;
+    var rate = (Graphics.boxWidth>Graphics.boxHeight)?yrate:xrate;
     this.anchor.x = 0.5;
 
     this.difficulty = difficulty;
     var length = Graphics.boxWidth-20*xrate;
-    this.backgroundBar = new PIXI.Graphics()
-    .beginFill(0xffffff)
-    .drawRect(-length/2,0, length, 20)
-    .endFill();
-    this.addChild(this.backgroundBar);
-    this.forgroundBar = new PIXI.Graphics();
-    this.cursor = new Sprite(ImageManager.loadPicture("arrow/RepairCursor"));
-    this.cursor.anchor.x = 0.5;
-    this.cursor.anchor.y = 0.5;
+    var height = 22*yrate;
+    this.barFrame = new Sprite();
+    var barFrameBitmap = new Bitmap(length+4, height);
+    var barFrameSource = ImageManager.loadPicture("bar/BarFrame");
+    barFrameBitmap.blt(barFrameSource, 0,0,8,22,0,0,8,height);
+    barFrameBitmap.blt(barFrameSource, 8,0,132,22,8,0,length-8*2+4,height);
+    barFrameBitmap.blt(barFrameSource, 140,0,8,22,length-8+4,0,8,height);
+    this.barFrame.bitmap = barFrameBitmap;
+    this.barFrame.x = -length/2-2;
+    this.backgroundBar = new Sprite(ImageManager.loadPicture("bar/BarGrad"));
+    this.backgroundBar.scale.x = length/120;
+    this.backgroundBar.scale.y = (height-2*yrate)/250;
+    this.backgroundBar.x = -length/2
+    this.backgroundBar.y +=2;
+
     this.amount = 100;
     this.current_amount = 0;
     this.selected_amount = 100*(1/this.difficulty);
     this.start_amount = (1-this.selected_amount/this.amount)*Math.random()*this.amount;
-    this.forgroundBar.beginFill(0xffff66)
-    .drawRect(length*(this.start_amount/this.amount)-length/2, 0, length*(this.selected_amount/this.amount), 20)
-    .endFill();
-    this.addChild(this.forgroundBar);
+    this.foregroundBar = new Sprite(ImageManager.loadPicture("bar/BarGradSuccess"));
+    this.foregroundBar.scale.x = (length*(this.selected_amount/this.amount))/120;
+    this.foregroundBar.scale.y = (height-2*yrate)/250;
+    this.foregroundBar.x = length*(this.start_amount/this.amount)-length/2;
+    this.foregroundBar.y +=2;
+
+    this.cursor = new Sprite(ImageManager.loadPicture("arrow/Gear"));
+    this.cursor.anchor.x = 0.5;
+    this.cursor.anchor.y = 0.5;
+    this.cursor.scale.x = 0.5*rate;
+    this.cursor.scale.y = 0.5*rate;
+
+    this.addChild(this.backgroundBar);
+    this.addChild(this.foregroundBar);
+    this.addChild(this.barFrame);
     this.cursor.y = 10;
     this.cursor.x = -length/2;
     this.addChild(this.cursor);
     this.step = length*(1/this.amount);
+
+    this.move(0-Graphics.boxWidth/2, Graphics.boxHeight/2);
+    gsap.to(this, 1, {
+        x: Graphics.boxWidth/2,
+        y: this.y,
+        ease: Power2.easeOut,
+        onComplete: this.getReady()
+    })
+
+    this.isTouched = false;
 }
 
 RepairGame.prototype.update = function(){
     if(!this.exiting){
-        if((Input.isTriggered('ok')||TouchInput.isTriggered()||this.current_amount>=this.amount)&&this.ready){
+        if((this.isTouched||this.current_amount>=this.amount)&&this.ready){
             if(this.current_amount>=this.start_amount&&this.current_amount<=this.start_amount+this.selected_amount){
                 SmileManager.lastRepairingSuccess = true;
                 this.exiting = true;
@@ -68,7 +247,7 @@ RepairGame.prototype.update = function(){
                         this.destroy();
                     }
                 })
-                SoundManager.playOk();
+                //SoundManager.playOk();
                 
             }else{
                 gsap.to(this, 0.1, {
@@ -87,7 +266,6 @@ RepairGame.prototype.update = function(){
                 })
                 SoundManager.playBuzzer();
             }
-            SmileManager.RT.exit();
             this.exited = true;
         }
     }
@@ -97,20 +275,24 @@ RepairGame.prototype.getReady = function(){
     this.ready= true;
 }
 
+RepairGame.prototype.touch = function(){
+    this.isTouched = true;
+}
+
 function RepairText(){
     this.initialize.apply(this, arguments);
 }
 
 RepairText.prototype = Object.create(Sprite.prototype);
-RepairText.prototype.constructor = Object.create(Sprite.prototype);
+RepairText.prototype.constructor = RepairText;
 
 RepairText.prototype.initialize = function(){
     Sprite.prototype.initialize.call(this);
     this.bitmap = new Bitmap(100, 72);
     this.progress = 0;
     // (text, x, y, maxWidth, lineHeight, align)
-    this.bitmap.drawText("{reparing}", 0, 0, 100, 36, "center");
-    this.bitmap.drawText(this.progress+ "/5", 0, 36, 100, 36, "center");
+    this.bitmap.drawText("{repairing}", 0, 0, 100, 36, "center");
+    this.move((Graphics.boxWidth-100)/2, 200)
     this.opacity = 0;
     this.direction = 1;
 }
@@ -122,18 +304,10 @@ RepairText.prototype.update = function(){
         if(this.opacity>=255||this.opacity<=0){
             this.direction*=-1;
         }
+        //console.log(this.opacity);
     }
 }
 
-RepairText.prototype.refreshProgress = function(){
-    this.progress = 5-$gameVariables.value(46);
-    console.log($gameVariables.value(46));
-    this.bitmap.clear();
-    this.bitmap.drawText("{reparing}", 0, 0, 100, 36, "center");
-    console.log(this.progress)
-    console.log(this.progress+ "/5")
-    this.bitmap.drawText(this.progress+ "/5", 0, 36, 100, 36, "center");
-}
 
 RepairText.prototype.exit = function(){
     this.exiting = true;
@@ -144,47 +318,79 @@ RepairText.prototype.exit = function(){
     })
 }
 
-SmileManager.startRepairing = function(){
-    this.RG = new RepairGame(2);
-    this.RG.move(0-Graphics.boxWidth/2, Graphics.boxHeight/2);
-    SceneManager._scene.addChild(this.RG);
-    gsap.to(this.RG, 1, {
-        x: Graphics.boxWidth/2,
-        y: this.RG.y,
-        ease: Power2.easeOut,
-        onComplete: this.RG.getReady()
-    })
-
-    this.RT = new RepairText();
-    this.RT.move((Graphics.boxWidth-100)/2, 200);
-    SceneManager._scene.addChild(this.RT);
+SmileManager.startRepairing = function(ID){
+    this.RGM = new RepairGameManager(ID);
+    SceneManager._scene.addChild(this.RGM);
 
 }
 
-
-
-
-//========================================
-// 血条
-
-function HPbar(){
+function RepairProgressBar(){
     this.initialize.apply(this, arguments);
 }
 
-HPbar.prototype = Object.create(Window_Base.prototype);
-HPbar.prototype.constructor = HPbar;
+RepairProgressBar.prototype = Object.create(Sprite.prototype);
+RepairProgressBar.prototype.constructor = RepairProgressBar;
 
-HPbar.prototype.initialize = function(){
-    Window_Base.prototype.initialize.call(this);
-    this.removeChildAt(0);
-    this.amount = 100;
+RepairProgressBar.prototype.initialize = function(){
+    Sprite.prototype.initialize.call(this);
+    var xrate = Graphics.boxWidth/375;
+    var yrate = Graphics.boxHeight/812;
+    this.anchor.x = 0.5;
+    this.move(Graphics.boxWidth/2, 150*yrate);
 
+    var length = Graphics.boxWidth-20*xrate;
+    this.barLength = length;
+    var height = 22*yrate;
+    this.barFrame = new Sprite();
+    var barFrameBitmap = new Bitmap(length+4, height);
+    var barFrameSource = ImageManager.loadPicture("bar/BarFrame");
+    barFrameBitmap.blt(barFrameSource, 0,0,8,22,0,0,8,height);
+    barFrameBitmap.blt(barFrameSource, 8,0,132,22,8,0,length-8*2+4,height);
+    barFrameBitmap.blt(barFrameSource, 140,0,8,22,length-8+4,0,8,height);
+    this.barFrame.bitmap = barFrameBitmap;
+    this.barFrame.x = -length/2;
+    this.backgroundBar = new Sprite(ImageManager.loadPicture("bar/BarGrad"));
+    this.backgroundBar.scale.x = length/120;
+    this.backgroundBar.scale.y = (height-2*yrate)/250;
+    this.backgroundBar.x = -length/2;
+    //this.backgroundBar.y+=2;
+
+    this.foregroundBar = new Sprite(ImageManager.loadPicture("bar/BarGradSuccess"));
+    this.foregroundBar.scale.x = 0;
+    this.foregroundBar.scale.y = (height-2*yrate)/250;
+    this.foregroundBar.x = -length/2;
+    //this.foregroundBar.y+=2;
+
+
+    this.addChild(this.backgroundBar);
+    this.addChild(this.foregroundBar);
+    this.addChild(this.barFrame);
 }
 
-HPbar.prototype.update = function(){
-    Window_Base.prototype.update.call(this);
-
+RepairProgressBar.prototype.setProgress = function(rate){
+    this.foregroundBar.scale.x = this.barLength*rate/120
 }
+
+//========================================
+// 退出按钮
+function RepairExitButton(){
+    this.initialize.apply(this, arguments);
+}
+
+RepairExitButton.prototype = Object.create(Sprite.prototype);
+RepairExitButton.prototype.constructor = RepairExitButton;
+
+RepairExitButton.prototype.initialize = function(manager){
+    Sprite.prototype.initialize.call(this);
+    this.manager = manager;
+    this.bitmap = ImageManager.loadPicture("button");
+}
+
+SmileManager.isSelfExiting = false;
+
+// RepairExitButton.prototype.update = function(){
+//     Sprite.prototype.update.call(this);
+// }
 
 //========================================
 // 追逐战！
@@ -192,19 +398,13 @@ SmileManager.isSensored = false;
 
 SmileManager.randomnize = function(p){
     var r = Math.random()*100;
-    return r<p*100;
+    return (r<p*100);
 }
 
 SmileManager.calcDistance = function(){
     var dx = $gameVariables.value(50);
     var dy = $gameVariables.value(51);
-    
-    var distance1 = 20;
-    var distance2 = 10;
-
-    if(dx>distance1||dy>distance1){
-        
-    }
+    return Math.floor(Math.sqrt(dx*dx+dy*dy));
 }
 
 SmileManager.findEmptySlot = function(){
@@ -250,5 +450,36 @@ Game_Map.prototype.isGenerallyPassable = function(x, y) {
 SmileManager.temps = SmileManager.temps || {};
 
 SmileManager.justMoved = false;
+
+
+//========================================
+// 电机随机生成函数
+
+SmileManager.renderGenerator = function(){
+    var list = [5,6,7,8,9,10,11];
+    SmileManager.renderSwitches(list, 5);
+}
+
+//========================================
+// 躲藏柜随机生成函数
+SmileManager.renderCase = function(){
+    var list = [21,22,23,24];
+    SmileManager.renderSwitches(list, 2);
+}
+
+//========================================
+// 随机生成函数
+
+SmileManager.renderSwitches = function(list, n){
+    var result = [];
+    for(var i=0; i<n; i++){
+        var r = Math.floor(Math.random()*list.length);
+        result.push(list.splice(r,1));
+    }
+
+    for(var j=0; j<result.length; j++){
+        $gameSwitches.setValue(result[j], true);
+    }
+}
 
 

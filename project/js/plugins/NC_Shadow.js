@@ -100,6 +100,11 @@ Game_Event.prototype.NC_S_verifyShadowDistance = function () {
         return false;
     };
 }
+Game_Event.prototype.NC_S_getShadowVector = function() {
+    var x = $gamePlayer.screenX() - this.screenX();
+    var y = $gamePlayer.screenY() - this.screenY();
+    return [x, y];
+}
 
 //=============================================================================
 
@@ -172,41 +177,85 @@ Spriteset_Map.prototype.NC_S_updateNewEventShadow = function () {
     this._tilemap.addChild(this._NC_S_area);
     var e_tank = $gameTemp._NC_S_shadowEvents;
 
-    for (var i = 0; i < e_tank.length; i++) { //添加阴影
-        var e = e_tank[i];
-        //this._NC_S_area.removeChild($gameTemp._NC_S_shadowSprites[e._eventId]);
-        if (e.NC_S_verifyShadowDistance()) {
-            this.NC_S_createShadow(e);
-        }
-    }
+    this.NC_S_createShadow(e_tank);
+
+    // for (var i = 0; i < e_tank.length; i++) { //添加阴影
+    //     var e = e_tank[i];
+    //     //this._NC_S_area.removeChild($gameTemp._NC_S_shadowSprites[e._eventId]);
+    //     if (e.NC_S_verifyShadowDistance()) {
+    //         this.NC_S_createShadow(e_tank);
+    //     }
+    // }
     //this._tilemap.addChild(this._NC_S_area)
 };
-Spriteset_Map.prototype.NC_S_createShadow = function (e) {
-    if (e === null || $gameTemp._NC_S_shadowSprites[e._eventId]===null) { return }
-    var shadow = $gameTemp._NC_S_shadowSprites[e._eventId];
-    var xLength = $gamePlayer.screenX() - e.screenX();
-    var yLength = -($gamePlayer.screenY() - e.screenY());
 
-    if (xLength > 0) {
-        var angle = (Math.PI / 2) - Math.atan(yLength / xLength);
-    }
-
-    if (xLength == 0) {
-        if (yLength > 0) {
-            var angle = 0;
-        } else {
-            var angle = Math.PI;
+Spriteset_Map.prototype.NC_S_createShadow = function(eList) {
+    var vector_x = 0;
+    var vector_y = 0;
+    for(var i =0; i<eList.length;i++){
+        var e = eList[i];
+        if(e.NC_S_verifyShadowDistance()){
+            var vector = e.NC_S_getShadowVector();
+            vector_x+=vector[0];
+            vector_y+=vector[1];
         }
     }
-
-    if (xLength < 0) {
-        var angle = (Math.PI * (3 / 2)) - Math.atan(yLength / xLength);
+    var angle;
+    if(vector_x>0){
+        angle = (Math.PI / 2) - Math.atan(vector_y/vector_x);
+    } else if (vector_x == 0 ){
+        if (vector_y > 0) {
+            angle = 0;
+        } else {
+            angle = Math.PI;
+        }
+    }else{
+        angle = (Math.PI * (3 / 2)) - Math.atan(vector_y/ vector_x);
     }
 
+    var distance = Math.sqrt(Math.pow(vector_x, 2)+Math.pow(vector_y, 2));
+    //console.log(distance/48);
+    // NC.characterShadow = new Sprite();
+    // NC.characterShadow.bitmap = ImageManager.loadPicture(NC.shadowPath);
+    // NC.characterShadow.anchor.x = 0.5;
+    // NC.characterShadow.anchor.y = 1;
+    var shadow = NC.characterShadow;
     shadow.rotation = angle;
     shadow.x = $gamePlayer.screenX();
     shadow.y = $gamePlayer.screenY() - 3;
-    shadow.scale.y = 1 + (e._NC_S_distance / e._shadowRadius) * (0.5);
-    shadow.opacity = (1 - e._NC_S_distance / e._shadowRadius) * (NC.shadowStrength);
+    shadow.scale.y = 1 + (distance/48) * (0.5);
+    shadow.opacity = (1/(distance/48)) * (NC.shadowStrength);
+    //console.log(NC.shadowStrength);
     this._NC_S_area.addChild(shadow);
-};
+
+}
+
+// Spriteset_Map.prototype.NC_S_createShadow = function (e) {
+//     if (e === null || $gameTemp._NC_S_shadowSprites[e._eventId]===null) { return }
+//     var shadow = $gameTemp._NC_S_shadowSprites[e._eventId];
+//     var xLength = $gamePlayer.screenX() - e.screenX();
+//     var yLength = -($gamePlayer.screenY() - e.screenY());
+
+//     if (xLength > 0) {
+//         var angle = (Math.PI / 2) - Math.atan(yLength / xLength);
+//     }
+
+//     if (xLength == 0) {
+//         if (yLength > 0) {
+//             var angle = 0;
+//         } else {
+//             var angle = Math.PI;
+//         }
+//     }
+
+//     if (xLength < 0) {
+//         var angle = (Math.PI * (3 / 2)) - Math.atan(yLength / xLength);
+//     }
+
+//     shadow.rotation = angle;
+//     shadow.x = $gamePlayer.screenX();
+//     shadow.y = $gamePlayer.screenY() - 3;
+//     shadow.scale.y = 1 + (e._NC_S_distance / e._shadowRadius) * (0.5);
+//     shadow.opacity = (1 - e._NC_S_distance / e._shadowRadius) * (NC.shadowStrength);
+//     this._NC_S_area.addChild(shadow);
+// };

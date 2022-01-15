@@ -140,6 +140,7 @@ TDDP.bootPreloadImages = {
     ],
     */
     picture: [
+        "bar/BarFrame"
     ],
     system: [
         "onSound",

@@ -1029,7 +1029,8 @@ Window_Selectable.prototype.processCursorMove = function() {
             this.cursorPageup();
         }
         if (this.index() !== lastIndex) {
-            SoundManager.playCursor();
+            //TODO: changed
+            //SoundManager.playCursor();
         }
     }
 };
@@ -1109,7 +1110,7 @@ Window_Selectable.prototype.onTouch = function(triggered) {
         }
     }
     if (this.index() !== lastIndex) {
-        SoundManager.playCursor();
+        //TODO: changedSoundManager.playCursor();
     }
 };
 
@@ -1163,21 +1164,23 @@ Window_Selectable.prototype.isCancelTriggered = function() {
 
 Window_Selectable.prototype.processOk = function() {
     if (this.isCurrentItemEnabled()) {
-        this.playOkSound();
+        //TODO: changedthis.playOkSound();
         this.updateInputData();
         this.deactivate();
         this.callOkHandler();
     } else {
-        this.playBuzzerSound();
+        //TODO: changedthis.playBuzzerSound();
     }
 };
 
 Window_Selectable.prototype.playOkSound = function() {
-    SoundManager.playOk();
+    //TODO: changed
+    //SoundManager.playOk();
 };
 
 Window_Selectable.prototype.playBuzzerSound = function() {
-    SoundManager.playBuzzer();
+    //TODO: changed
+    //SoundManager.playBuzzer();
 };
 
 Window_Selectable.prototype.callOkHandler = function() {
@@ -1185,7 +1188,8 @@ Window_Selectable.prototype.callOkHandler = function() {
 };
 
 Window_Selectable.prototype.processCancel = function() {
-    SoundManager.playCancel();
+    //TODO: changed
+    //SoundManager.playCancel();
     this.updateInputData();
     this.deactivate();
     this.callCancelHandler();
@@ -1196,14 +1200,16 @@ Window_Selectable.prototype.callCancelHandler = function() {
 };
 
 Window_Selectable.prototype.processPageup = function() {
-    SoundManager.playCursor();
+    //TODO: changed
+    //SoundManager.playCursor();
     this.updateInputData();
     this.deactivate();
     this.callHandler('pageup');
 };
 
 Window_Selectable.prototype.processPagedown = function() {
-    SoundManager.playCursor();
+    //TODO: changed
+    //SoundManager.playCursor();
     this.updateInputData();
     this.deactivate();
     this.callHandler('pagedown');
@@ -4401,9 +4407,9 @@ Window_Message.prototype.terminateMessage = function() {
     $gameMessage.clear();
     this._positionType = 2;
     this.updatePlacement();
-    if(!BirthdayManager.endingWindow){
-        this.setBackgroundType(0);
-    }
+    // if(!BirthdayManager.endingWindow){
+    //     this.setBackgroundType(0);
+    // }
 };
 
 Window_Message.prototype.updateWait = function() {
