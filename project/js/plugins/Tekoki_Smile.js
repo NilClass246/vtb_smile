@@ -39,7 +39,6 @@ RepairGameManager.prototype.initialize = function(ID){
     this.isInGame = false;
 
     this.exitButton = new RepairExitButton(this);
-    this.exitButton.y=Graphics.boxHeight-36;
     this.addChild(this.exitButton);
     this.renderRepairGame();
 }
@@ -53,8 +52,8 @@ RepairGameManager.prototype.update = function(){
         if(this.progress==this.maxProgress){
             this.onSuccess();
         }
-        //50概率进入游戏
-        if(SmileManager.randomnize(0.03)){
+        //3%概率进入游戏
+        if(SmileManager.randomnize(0.02)&&!SmileManager.onEndingRepair){
             this.renderRepairGame();
         }
     }
@@ -185,7 +184,7 @@ RepairGame.prototype.initialize = function(difficulty){
     this.backgroundBar.scale.x = length/120;
     this.backgroundBar.scale.y = (height-2*yrate)/250;
     this.backgroundBar.x = -length/2
-    this.backgroundBar.y +=2;
+    //this.backgroundBar.y +=2;
 
     this.amount = 100;
     this.current_amount = 0;
@@ -211,37 +210,45 @@ RepairGame.prototype.initialize = function(difficulty){
     this.addChild(this.cursor);
     this.step = length*(1/this.amount);
 
-    this.move(0-Graphics.boxWidth/2, Graphics.boxHeight/2);
+    this.move(Graphics.boxWidth/2, Graphics.boxHeight+20);
     gsap.to(this, 1, {
-        x: Graphics.boxWidth/2,
-        y: this.y,
+        x: this.x,
+        y: Graphics.boxHeight/2,
         ease: Power2.easeOut,
         onComplete: this.getReady()
     })
 
     this.isTouched = false;
+    this.startdelay=40;
+    this.opacity -=100;
 }
 
 RepairGame.prototype.update = function(){
     if(!this.exiting){
-        if((this.isTouched||this.current_amount>=this.amount)&&this.ready){
-            if(this.current_amount>=this.start_amount&&this.current_amount<=this.start_amount+this.selected_amount){
-                SmileManager.lastRepairingSuccess = true;
-                this.exiting = true;
-            }else{
-                SmileManager.lastRepairingSuccess = false;
-                this.exiting = true;
+        if(this.ready){
+            this.startdelay-=1;
+            if(this.startdelay<=0){
+                this.opacity = 255;
+                if((this.isTouched||this.current_amount>=this.amount)){
+                    if(this.current_amount>=this.start_amount&&this.current_amount<=this.start_amount+this.selected_amount){
+                        SmileManager.lastRepairingSuccess = true;
+                        this.exiting = true;
+                    }else{
+                        SmileManager.lastRepairingSuccess = false;
+                        this.exiting = true;
+                    }
+                    SmileManager.onEndingRepair = true;
+                }
+                this.current_amount+= 1;
+                this.cursor.x += this.step
             }
-            SmileManager.onEndingRepair = true;
         }
-        this.current_amount+= 1;
-        this.cursor.x += this.step
     }else{
         if(!this.exited){
             if(SmileManager.lastRepairingSuccess){
                 gsap.to(this, 1, {
-                    x: Graphics.boxWidth*3/2,
-                    y: this.y,
+                    x: this.x,
+                    y: Graphics.boxHeight+20,
                     ease: Power2.easeOut,
                     onComplete: ()=>{
                         this.destroy();
@@ -384,6 +391,7 @@ RepairExitButton.prototype.initialize = function(manager){
     Sprite.prototype.initialize.call(this);
     this.manager = manager;
     this.bitmap = ImageManager.loadPicture("button");
+    this.y=Graphics.boxHeight-36;
 }
 
 SmileManager.isSelfExiting = false;
@@ -392,6 +400,40 @@ SmileManager.isSelfExiting = false;
 //     Sprite.prototype.update.call(this);
 // }
 
+//========================================
+// 跳过按钮
+function SkipButton(){
+    this.initialize.apply(this, arguments);
+}
+
+SkipButton.prototype = Object.create(Sprite.prototype);
+SkipButton.prototype.constructor = SkipButton;
+
+SkipButton.prototype.initialize = function(){
+    Sprite.prototype.initialize.call(this);
+    this.bitmap = ImageManager.loadPicture("skip_button");
+    this.y = Graphics.boxHeight-36;
+}
+
+SkipButton.prototype.isTouched = function(){
+    var cw = this.bitmap.width;
+    var ch = this.bitmap.height;
+    //console.log(cw);
+
+    if (TouchInput.x < this.x) {return false};
+    if (TouchInput.x > this.x + cw) {return false};
+    if (TouchInput.y < this.y) {return false};
+    if (TouchInput.y > this.y + ch) {return false};
+    return true;
+}
+
+SkipButton.prototype.update = function(){
+    Sprite.prototype.update.call(this);
+    if(this.isTouched()){
+        $gameSwitches.setValue(5, false);
+        $gameSwitches.setValue(6, true);
+    }
+}
 //========================================
 // 追逐战！
 SmileManager.isSensored = false;
@@ -456,14 +498,14 @@ SmileManager.justMoved = false;
 // 电机随机生成函数
 
 SmileManager.renderGenerator = function(){
-    var list = [5,6,7,8,9,10,11];
+    var list = [61,62,63,64,65,67,68,69,70,71,72,73,74,75,76,77];
     SmileManager.renderSwitches(list, 5);
 }
 
 //========================================
 // 躲藏柜随机生成函数
 SmileManager.renderCase = function(){
-    var list = [21,22,23,24];
+    var list = [21,22,23,24,25,26];
     SmileManager.renderSwitches(list, 2);
 }
 
@@ -482,4 +524,66 @@ SmileManager.renderSwitches = function(list, n){
     }
 }
 
+//========================================
+// 成就
 
+SmileManager.achievements = {};
+SmileManager.achievements.isSecondLap = true;
+
+//========================================
+// 结算界面
+
+function Window_Score(){
+    this.initialize.apply(this, arguments);
+}
+
+Window_Score.prototype = Object.create(Window_Base.prototype);
+Window_Score.prototype.constructor = Window_Score;
+
+Window_Score.prototype.initialize = function(){
+    Window_Base.prototype.initialize.call(this,0,-Graphics.boxHeight,Graphics.boxWidth,Graphics.boxHeight);
+    this.drawText("{repaired_generator}"+$gameVariables.value(47), 0, 0);
+    this.drawText("{repaired_generator}"+$gameVariables.value(47), 0, 28);
+    gsap.to(this, 1, {
+        x: this.x,
+        y: 0,
+        ease: Elastic.easeOut.config(1, 0.4),
+        onComplete: this.getReady()
+    })
+}
+
+
+//========================================
+// 计时器
+
+function timeCounter(){
+    this.initialize.apply(this.arguments);
+}
+
+timeCounter.prototype = Object.create(Sprite.prototype);
+timeCounter.prototype.constructor = timeCounter;
+
+timeCounter.prototype.initialize = function() {
+    Sprite.prototype.initialize.call(this);
+    this._min = 0;
+    this._sec = 0;
+    this._frames = 0;;
+    this.running = false;
+}
+
+timeCounter.prototype.update = function(){
+    Sprite.prototype.update.call(this);
+    if(this.running){
+        this._frames+=1;
+        if(this._frames>=60){
+            this._sec+=1;
+        }
+        if(this._sec>=60){
+            this._min+=1;
+        }
+    }
+}
+
+timeCounter.prototype.startCounting = function(){
+
+}

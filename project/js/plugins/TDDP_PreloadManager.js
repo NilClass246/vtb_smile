@@ -156,7 +156,9 @@ TDDP.bootPreloadImages = {
 */
 TDDP.bootPreloadBGM = [
     // "Town1"
-    "菜单音乐"
+    "菜单音乐",
+    "环境白噪音",
+    "草莓丸子登场"
 ]
 /*
 *
@@ -166,6 +168,7 @@ TDDP.bootPreloadBGM = [
 */
 TDDP.bootPreloadBGS = [
     // "Quake"
+    "修理发电机"
 ]
 /*
 *
@@ -176,7 +179,8 @@ TDDP.bootPreloadBGS = [
 TDDP.bootPreloadSE = [
     // "Open2"
     "按下开始游戏",
-    "推倒垃圾桶"
+    "推倒垃圾桶",
+    "Thunder4"
 ]
 /*
 *

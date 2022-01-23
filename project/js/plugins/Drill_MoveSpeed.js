@@ -308,12 +308,13 @@ Game_CharacterBase.prototype.drill_MS_setASpeed = function(accurate_speed) {
 	}else{
 		this._drill_MS_cannotMove = false; 
 	}
-	if( this._drill_MS_ASpeed == 1 ){  this._moveSpeed = 1; }
-	if( this._drill_MS_ASpeed == 2 ){  this._moveSpeed = 2; }
-	if( this._drill_MS_ASpeed >= 3 && this._drill_MS_ASpeed <= 5 ){ this._moveSpeed = 3; }
-	if( this._drill_MS_ASpeed >= 6 && this._drill_MS_ASpeed <= 10 ){ this._moveSpeed = 4; }
-	if( this._drill_MS_ASpeed >= 11 && this._drill_MS_ASpeed <= 24 ){ this._moveSpeed = 5; }
-	if( this._drill_MS_ASpeed >= 25 ){ this._moveSpeed = 6; }
+	this._moveSpeed = this._drill_MS_ASpeed;
+	 if( this._drill_MS_ASpeed == 1 ){  this._moveSpeed = 1; }
+	 if( this._drill_MS_ASpeed == 2 ){  this._moveSpeed = 2; }
+	 if( this._drill_MS_ASpeed >= 3 && this._drill_MS_ASpeed <= 5 ){ this._moveSpeed = 3; }
+	 if( this._drill_MS_ASpeed >= 6 && this._drill_MS_ASpeed <= 10 ){ this._moveSpeed = 4; }
+	 if( this._drill_MS_ASpeed >= 11 && this._drill_MS_ASpeed <= 24 ){ this._moveSpeed = 5; }
+	 if( this._drill_MS_ASpeed >= 25 ){ this._moveSpeed = 6; }
 };
 //==============================
 // * 物体 - 实际默认速度（获取）

@@ -306,20 +306,20 @@ BirthdayManager.pluginCommandHideAllKeyButtons = function(scene, args){
         }
     }
 }
-BirthdayManager.temps.Scene_Map_prototype_start = Scene_Map.prototype.start;
-Scene_Map.prototype.start = function() {
-    BirthdayManager.temps.Scene_Map_prototype_start.call(this);
-    BirthdayManager.manageVirtualButtons();
-    if($gameSwitches.value(23)){
-        BirthdayManager.enterCakeScene();
-        if(BirthdayManager.saved!={}){
-            BirthdayManager.restoreCakeScene();
-        }
-    }
-    //BirthdayManager.manageSkinAndFace();
-    BirthdayManager.changeFace("mea");
-    $gameSwitches.setValue(58, true); 
-};
+// BirthdayManager.temps.Scene_Map_prototype_start = Scene_Map.prototype.start;
+// Scene_Map.prototype.start = function() {
+//     BirthdayManager.temps.Scene_Map_prototype_start.call(this);
+//     BirthdayManager.manageVirtualButtons();
+//     if($gameSwitches.value(23)){
+//         BirthdayManager.enterCakeScene();
+//         if(BirthdayManager.saved!={}){
+//             BirthdayManager.restoreCakeScene();
+//         }
+//     }
+//     //BirthdayManager.manageSkinAndFace();
+//     BirthdayManager.changeFace("mea");
+//     $gameSwitches.setValue(58, true); 
+// };
 
 BirthdayManager.manageSkinAndFace = function(){
     if($gameSwitches.value(10)){
@@ -1557,6 +1557,7 @@ Scene_Map.prototype.createAllWindows = function() {
      this._TaskWindow = new Window_Task();
      //this._TaskWindow.drawText("任务……", 0, 0);
      this._FaceWindow = new Window_Face(upperFaceSize);
+     //console.log(2);
     // this._button1 = new Window_Side_Backup(0, this._messageWindow.y , Graphics.boxWidth*(1/5), this._messageWindow.height/2);
     // this._button2 = new Window_Side_Options(0, this._messageWindow.y+this._messageWindow.height/2 , Graphics.boxWidth*(1/5), this._messageWindow.height/2);
     // //this._CakeListWindow = new Window_CakeList(upperFaceSize);

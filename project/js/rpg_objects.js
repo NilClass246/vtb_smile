@@ -8701,7 +8701,12 @@ Game_Event.prototype.setupPageSettings = function() {
         this._originalPattern = image.pattern;
         this.setPattern(image.pattern);
     }
-    this.setMoveSpeed(page.moveSpeed);
+    // TODO: changed
+    if(this._eventId==5&&this._mapId==2){
+        this.setMoveSpeed(4.5);
+    }else{
+        this.setMoveSpeed(page.moveSpeed);
+    }
     this.setMoveFrequency(page.moveFrequency);
     this.setPriorityType(page.priorityType);
     this.setWalkAnime(page.walkAnime);
