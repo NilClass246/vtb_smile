@@ -29,7 +29,7 @@ RepairGameManager.prototype.constructor = RepairGameManager;
 
 RepairGameManager.prototype.initialize = function(ID){
     Sprite.prototype.initialize.call(this);
-    this.maxProgress = 180;
+    this.maxProgress = 300;
     this.ID = ID;
     this.progress = $gameVariables.value(ID);
     this.progressBar = new RepairProgressBar();
@@ -52,8 +52,8 @@ RepairGameManager.prototype.update = function(){
         if(this.progress==this.maxProgress){
             this.onSuccess();
         }
-        //3%概率进入游戏
-        if(SmileManager.randomnize(0.02)&&!SmileManager.onEndingRepair){
+        //1%概率进入游戏
+        if(SmileManager.randomnize(0.01)&&!SmileManager.onEndingRepair){
             this.renderRepairGame();
         }
     }
@@ -186,9 +186,9 @@ RepairGame.prototype.initialize = function(difficulty){
     this.backgroundBar.x = -length/2
     //this.backgroundBar.y +=2;
 
-    this.amount = 100;
+    this.amount = 75 + 50*Math.random();
     this.current_amount = 0;
-    this.selected_amount = 100*(1/this.difficulty);
+    this.selected_amount = this.amount*(1/(this.difficulty*2));
     this.start_amount = (1-this.selected_amount/this.amount)*Math.random()*this.amount;
     this.foregroundBar = new Sprite(ImageManager.loadPicture("bar/BarGradSuccess"));
     this.foregroundBar.scale.x = (length*(this.selected_amount/this.amount))/120;
@@ -391,6 +391,7 @@ RepairExitButton.prototype.initialize = function(manager){
     Sprite.prototype.initialize.call(this);
     this.manager = manager;
     this.bitmap = ImageManager.loadPicture("button");
+    this.x=(Graphics.boxWidth-93)/2;
     this.y=Graphics.boxHeight-36;
 }
 
@@ -505,8 +506,8 @@ SmileManager.renderGenerator = function(){
 //========================================
 // 躲藏柜随机生成函数
 SmileManager.renderCase = function(){
-    var list = [21,22,23,24,25,26];
-    SmileManager.renderSwitches(list, 2);
+    var list = [21,22,23,24,25,26,27,28,29];
+    SmileManager.renderSwitches(list, 6);
 }
 
 //========================================
@@ -541,15 +542,51 @@ Window_Score.prototype = Object.create(Window_Base.prototype);
 Window_Score.prototype.constructor = Window_Score;
 
 Window_Score.prototype.initialize = function(){
-    Window_Base.prototype.initialize.call(this,0,-Graphics.boxHeight,Graphics.boxWidth,Graphics.boxHeight);
-    this.drawText("{repaired_generator}"+$gameVariables.value(47), 0, 0);
-    this.drawText("{repaired_generator}"+$gameVariables.value(47), 0, 28);
+    this.p = 20;
+    Window_Base.prototype.initialize.call(this,this.p,-Graphics.boxHeight,Graphics.boxWidth-this.p*2,Graphics.boxHeight-this.p*2);
+    this.drawThings();
     gsap.to(this, 1, {
         x: this.x,
-        y: 0,
-        ease: Elastic.easeOut.config(1, 0.4),
+        y: this.p,
+        ease: Power2.easeIn,
         onComplete: this.getReady()
     })
+}
+
+Window_Score.prototype.drawThings = function(){
+    this.drawText("{repaired_generators}"+$gameVariables.value(47), 0, 0*28);
+    this.drawText("{warning_times}"+$gameVariables.value(25), 0, 1*28);
+    this.drawText("{hide_times}"+$gameVariables.value(26), 0, 2*28);
+    this.drawText("{hit_times}"+$gameVariables.value(27), 0, 3*28);
+    var time = SmileManager.TC._frames;
+    this.drawText("{time_elapsed}"+Math.floor(time/3600)+" : "+Math.floor(time/60), 0, 5*28);
+    this.drawText("{score}"+this.calcScore(), 0, 6*28);
+}
+
+Window_Score.prototype.calcScore = function(){
+    var score = 50*$gameVariables.value(47);
+    return score;
+}
+
+Window_Score.prototype.update = function(){
+    Window_Base.prototype.update.call(this);
+    if(this.ready&&this.exiting){
+        gsap.to(this, 1, {
+            x: this.x,
+            y: Graphics.boxHeight,
+            ease: Power2.easeOut
+        });
+        this.ready = false;
+    }
+
+}
+
+Window_Score.prototype.getReady = function(){
+    this.ready = true;
+}
+
+Window_Score.prototype.leave = function(){
+    this.exiting = true;
 }
 
 
@@ -557,7 +594,7 @@ Window_Score.prototype.initialize = function(){
 // 计时器
 
 function timeCounter(){
-    this.initialize.apply(this.arguments);
+    this.initialize.apply(this, arguments);
 }
 
 timeCounter.prototype = Object.create(Sprite.prototype);
@@ -565,8 +602,6 @@ timeCounter.prototype.constructor = timeCounter;
 
 timeCounter.prototype.initialize = function() {
     Sprite.prototype.initialize.call(this);
-    this._min = 0;
-    this._sec = 0;
     this._frames = 0;;
     this.running = false;
 }
@@ -575,15 +610,15 @@ timeCounter.prototype.update = function(){
     Sprite.prototype.update.call(this);
     if(this.running){
         this._frames+=1;
-        if(this._frames>=60){
-            this._sec+=1;
-        }
-        if(this._sec>=60){
-            this._min+=1;
-        }
     }
 }
 
 timeCounter.prototype.startCounting = function(){
-
+    this.running = true;
 }
+
+timeCounter.prototype.stopCounting = function(){
+    this.running = false;
+}
+
+SmileManager.TC = new timeCounter();

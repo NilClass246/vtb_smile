@@ -81,7 +81,7 @@ BirthdayManager.loadAutoSave = function(){
 }
 
 //版本控制
-BirthdayManager.version = "V0.01"
+BirthdayManager.version = "V0.03"
 
 function Sprite_Version(){
     this.initialize.apply(this, arguments);

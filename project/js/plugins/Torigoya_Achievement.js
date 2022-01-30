@@ -336,6 +336,7 @@
         };
 
         AchievementManager.prototype.allData = function () {
+            //console.log(this._items);
             return this._items;
         };
 
