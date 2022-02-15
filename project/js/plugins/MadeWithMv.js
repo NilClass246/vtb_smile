@@ -259,12 +259,13 @@ function Scene_Splash() {
     Scene_Splash.prototype.createSplashes = function() {
         if (Liquidize.MadeWithMV.ShowMV) {
             this._mvSplash = new Sprite(ImageManager.loadSystem(Liquidize.MadeWithMV.MVImage));
+            // todo: changed
             if(Graphics.boxWidth<Graphics.boxHeight){
-                this._mvSplash.scale.x = Graphics.boxWidth/1695;
-                this._mvSplash.scale.y = Graphics.boxWidth/1695;
+                this._mvSplash.scale.x = Graphics.boxWidth/800;
+                this._mvSplash.scale.y = Graphics.boxWidth/800;
             }else{
-                this._mvSplash.scale.x = Graphics.boxHeight/1695;
-                this._mvSplash.scale.y = Graphics.boxHeight/1695;
+                this._mvSplash.scale.x = Graphics.boxHeight/800;
+                this._mvSplash.scale.y = Graphics.boxHeight/800;
             }
             this.addChild(this._mvSplash);
         }
