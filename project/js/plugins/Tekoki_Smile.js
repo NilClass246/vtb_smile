@@ -41,19 +41,15 @@ RepairGameManager.prototype.initialize = function(ID){
     this.exitButton = new RepairExitButton(this);
     this.addChild(this.exitButton);
     this.renderRepairGame();
+    this.step = 0.25*this.maxProgress;
 }
 
 RepairGameManager.prototype.update = function(){
     Sprite.prototype.update.call(this);
 
     if(!this.isInGame){
-        this.progress+=1;
-        this.progressBar.setProgress(this.progress/this.maxProgress);
-        if(this.progress==this.maxProgress){
-            this.onSuccess();
-        }
-        //1%概率进入游戏
-        if(SmileManager.randomnize(0.01)&&!SmileManager.onEndingRepair){
+        //0.2%概率进入游戏
+        if(SmileManager.randomnize(0.002)&&!SmileManager.onEndingRepair){
             this.renderRepairGame();
         }
     }
@@ -61,34 +57,49 @@ RepairGameManager.prototype.update = function(){
     if(SmileManager.onEndingRepair){
         if(SmileManager.lastRepairingSuccess){
             this.isInGame=false;
+            this.progress+=this.step;
         }else{
             this.onFailure();
         }
         SmileManager.onEndingRepair = false;
-    }
-
-    if(SmileManager.GetHp()<=0){
-        this.selfExiting();
-    }
-
-    if(TouchInput.isTriggered()){
-        var t = this.isTouched(this.exitButton);
-        console.log(t);
-        if(t){
+    }else{
+        if(SmileManager.GetHp()<=0){
             this.selfExiting();
         }
-        if(this.isInGame&&!t){
-            this.currentGame.touch();
+    
+        if(TouchInput.isTriggered()){
+            var t = this.isTouched(this.exitButton);
+            //console.log(t);
+            if(t){
+                this.selfExiting();
+            }
+            if(this.isInGame&&!t){
+                if(this.currentGame){
+                    this.currentGame.touch();
+                }
+            }
+        }
+    
+        if(Input.isTriggered("ok")){
+            if(this.currentGame){
+                this.currentGame.touch();
+            }
+        }
+    
+        if(Input.isTriggered("cancel")){
+            this.selfExiting();
+        }
+    
+        this.progress+=0.2;
+        if(this.progress>=this.maxProgress){
+            this.progress = this.maxProgress
+        }
+        this.progressBar.setProgress(this.progress/this.maxProgress);
+        if(this.progress>=this.maxProgress){
+            this.onSuccess();
         }
     }
 
-    if(Input.isTriggered("ok")){
-        this.currentGame.touch();
-    }
-
-    if(Input.isTriggered("cancel")){
-        this.selfExiting();
-    }
 }
 
 RepairGameManager.prototype.selfExiting = function(){
@@ -105,13 +116,13 @@ RepairGameManager.prototype.onFailure = function(){
 
 RepairGameManager.prototype.onSuccess = function(){
     SmileManager.isRepairingFinished = true;
+    this.currentGame.onSuccess();
     this.terminate();
 }
 
 RepairGameManager.prototype.terminate = function(){
     SmileManager.onEndingRepairManager = true;
     this.isInGame = false;
-    console.log(this.ID);
     $gameVariables.setValue(this.ID, this.progress);
     this.destroy();
 }
@@ -171,6 +182,7 @@ RepairGame.prototype.initialize = function(difficulty){
 
     this.difficulty = difficulty;
     var length = Graphics.boxWidth-20*xrate;
+    this.cl = length;
     var height = 22*yrate;
     this.barFrame = new Sprite();
     var barFrameBitmap = new Bitmap(length+4, height);
@@ -182,13 +194,13 @@ RepairGame.prototype.initialize = function(difficulty){
     this.barFrame.x = -length/2-2;
     this.backgroundBar = new Sprite(ImageManager.loadPicture("bar/BarGrad"));
     this.backgroundBar.scale.x = length/120;
-    this.backgroundBar.scale.y = (height-2*yrate)/250;
+    this.backgroundBar.scale.y = (height-2)/250;
     this.backgroundBar.x = -length/2
     //this.backgroundBar.y +=2;
 
     this.amount = 75 + 50*Math.random();
     this.current_amount = 0;
-    this.selected_amount = this.amount*(1/(this.difficulty*2));
+    this.selected_amount = this.amount*(1/(this.difficulty*4));
     this.start_amount = (1-this.selected_amount/this.amount)*Math.random()*this.amount;
     this.foregroundBar = new Sprite(ImageManager.loadPicture("bar/BarGradSuccess"));
     this.foregroundBar.scale.x = (length*(this.selected_amount/this.amount))/120;
@@ -208,7 +220,9 @@ RepairGame.prototype.initialize = function(difficulty){
     this.cursor.y = 10;
     this.cursor.x = -length/2;
     this.addChild(this.cursor);
-    this.step = length*(1/this.amount);
+    // 移动速度
+    this.percent = 0.8;
+    this.step = (length*(1/this.amount))* this.percent ;
 
     this.move(Graphics.boxWidth/2, Graphics.boxHeight+20);
     gsap.to(this, 1, {
@@ -231,16 +245,17 @@ RepairGame.prototype.update = function(){
                 this.opacity = 255;
                 if((this.isTouched||this.current_amount>=this.amount)){
                     if(this.current_amount>=this.start_amount&&this.current_amount<=this.start_amount+this.selected_amount){
-                        SmileManager.lastRepairingSuccess = true;
-                        this.exiting = true;
+                        this.onSuccess();
                     }else{
-                        SmileManager.lastRepairingSuccess = false;
-                        this.exiting = true;
+                        this.onFailure();
                     }
                     SmileManager.onEndingRepair = true;
                 }
-                this.current_amount+= 1;
-                this.cursor.x += this.step
+                this.current_amount+= 1* this.percent ;
+                this.cursor.x += this.step;
+                if(this.cursor.x>=this.cl){
+                    this.cursor.x = this.cl;
+                }
             }
         }
     }else{
@@ -284,6 +299,16 @@ RepairGame.prototype.getReady = function(){
 
 RepairGame.prototype.touch = function(){
     this.isTouched = true;
+}
+
+RepairGame.prototype.onSuccess = function(){
+    SmileManager.lastRepairingSuccess = true;
+    this.exiting = true;
+}
+
+RepairGame.prototype.onFailure = function(){
+    SmileManager.lastRepairingSuccess = false;
+    this.exiting = true;
 }
 
 function RepairText(){
@@ -389,10 +414,12 @@ RepairExitButton.prototype.constructor = RepairExitButton;
 
 RepairExitButton.prototype.initialize = function(manager){
     Sprite.prototype.initialize.call(this);
+    var pw = 72;
+    var ph = 72;
     this.manager = manager;
     this.bitmap = ImageManager.loadPicture("button");
-    this.x=(Graphics.boxWidth-93)/2;
-    this.y=Graphics.boxHeight-36;
+    this.x=(Graphics.boxWidth-pw)/2;
+    this.y=Graphics.boxHeight-ph-28-(ph+28)*(Graphics.boxHeight/884);
 }
 
 SmileManager.isSelfExiting = false;
@@ -454,7 +481,7 @@ SmileManager.findEmptySlot = function(){
     var playerX = $gamePlayer.x;
     var playerY = $gamePlayer.y;
 
-    var slotList = this.generateSlots(playerX, playerY, 7, 5);
+    var slotList = this.generateSlots(playerX, playerY, 10, 8);
     var slot = slotList[Math.floor(Math.random()*slotList.length)];
     $gameVariables.setValue(48, slot[0]);
     $gameVariables.setValue(49, slot[1]);
@@ -511,6 +538,13 @@ SmileManager.renderCase = function(){
 }
 
 //========================================
+// 出口随机生成函数
+SmileManager.renderExit = function(){
+    var list = [82, 83, 84, 85, 86, 87];
+    SmileManager.renderSwitches(list, 1);
+}
+
+//========================================
 // 随机生成函数
 
 SmileManager.renderSwitches = function(list, n){
@@ -559,13 +593,39 @@ Window_Score.prototype.drawThings = function(){
     this.drawText("{hide_times}"+$gameVariables.value(26), 0, 2*28);
     this.drawText("{hit_times}"+$gameVariables.value(27), 0, 3*28);
     var time = SmileManager.TC._frames;
-    this.drawText("{time_elapsed}"+Math.floor(time/3600)+" : "+Math.floor(time/60), 0, 5*28);
+    this.drawText("{time_elapsed}"+SmileManager.calcTime(time), 0, 5*28);
     this.drawText("{score}"+this.calcScore(), 0, 6*28);
 }
 
-Window_Score.prototype.calcScore = function(){
-    var score = 50*$gameVariables.value(47);
+SmileManager.calcTime = function(time){
+    var sec = ""+Math.floor((time%3600)/60);
+    var len = sec.length;
+    for(var i =0; i< 2-len; i++){
+        sec = "0"+sec;
+    }
+    var min = ""+Math.floor(time/3600);
+    len = min.length;
+    for(var i =0; i< 2-len; i++){
+        min = "0"+min;
+    }
+    var format = min+" : "+sec;
+    return format;
+}
+
+SmileManager.calcScore = function(){
+    var score = 2000*$gameVariables.value(47) // 电机分
+        + 200*$gameVariables.value(26) // 躲藏分
+        - 300*$gameVariables.value(27) // 受击分
+        - 400*$gameVariables.value(25) // 警报分
+        + 80*$gameVariables.value(28) // 传送分
+    if(score<0){
+        score = 0;
+    }
     return score;
+}
+
+Window_Score.prototype.calcScore = function(){
+    return SmileManager.calcScore();
 }
 
 Window_Score.prototype.update = function(){
@@ -621,4 +681,88 @@ timeCounter.prototype.stopCounting = function(){
     this.running = false;
 }
 
-SmileManager.TC = new timeCounter();
+SmileManager.TC = null;
+
+//========================================
+// 记分器
+
+function Score_Pad(){
+    this.initialize.apply(this, arguments);
+}
+
+Score_Pad.prototype = Object.create(Sprite.prototype);
+Score_Pad.prototype.constructor = Score_Pad;
+
+Score_Pad.prototype.initialize = function(){
+    Sprite.prototype.initialize.call(this);
+    this.x = Graphics.boxWidth - 28*7;
+    this.y = Graphics.boxHeight - 28;
+    this.bitmap = new Bitmap(28*7, 28);
+    this.score = 0;
+    this.readScore();
+    this.display_score = this.score;
+}
+
+Score_Pad.prototype.update = function(){
+    Sprite.prototype.update.call(this);
+    this.readScore();
+    this.refreshText();
+}
+
+Score_Pad.prototype.readScore = function(){
+    this.score = SmileManager.calcScore();
+}
+
+Score_Pad.prototype.refreshText = function(){
+    this.bitmap.clear();
+    this.display_score += (this.score - this.display_score)/10;
+    var s = ""+Math.round(this.display_score);
+    var len = 6-s.length;
+    for(var j = 0; j<len;j++){
+        s = "0"+s;
+    }
+    s = "{score}"+s;
+    //console.log(s);
+    this.bitmap.drawText(s, 0, 0, 28*7, 28, "right");
+}
+
+SmileManager.SP = null;
+//========================================
+// 倒计时
+
+function Count_Down(){
+    this.initialize.apply(this, arguments);
+}
+
+Count_Down.prototype = Object.create(Sprite.prototype);
+Count_Down.prototype.constructor = Count_Down;
+
+Count_Down.prototype.initialize = function(){
+    Sprite.prototype.initialize.call(this);
+    this.x = Graphics.boxWidth - 28*7;
+    this.y = Graphics.boxHeight - 28*2;
+    this.bitmap = new Bitmap(28*7, 28);
+    this.time = SmileManager.TC._frames;
+}
+
+Count_Down.prototype.update = function(){
+    Sprite.prototype.update.call(this);
+    this.time = SmileManager.TC._frames;
+    var t = 3600*5 - this.time;
+    if(t>=0){
+        this.refreshTime(t); 
+    }else{
+        $gameSwitches.setValue(20, true);
+    }
+}
+
+Count_Down.prototype.refreshTime = function(t){
+    this.bitmap.clear();
+    if(t<0){
+        t=0;
+    }
+    var s = SmileManager.calcTime(t);
+    this.bitmap.drawText(s, 0, 0, 28*7, 28, "right");
+}
+
+SmileManager.CD = null;

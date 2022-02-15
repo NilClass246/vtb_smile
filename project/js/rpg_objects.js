@@ -8701,9 +8701,10 @@ Game_Event.prototype.setupPageSettings = function() {
         this._originalPattern = image.pattern;
         this.setPattern(image.pattern);
     }
+    // 丸子速度
     // TODO: changed
     if(this._eventId==5&&this._mapId==2){
-        this.setMoveSpeed(4.5);
+        this.setMoveSpeed(4.7);
     }else{
         this.setMoveSpeed(page.moveSpeed);
     }

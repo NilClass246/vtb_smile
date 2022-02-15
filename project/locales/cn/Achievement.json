@@ -3,13 +3,26 @@
     "gain_achievement":"获得成就！",
     "hidden_achievement":"(未获得)",
     "close":"关闭",
+    
     "repaired_generators": "修复的电机数: ",
     "warning_times": "触发警报次数: ",
     "time_elapsed": "游戏耗时: ",
-    "score":"分数: ",
+    "score":"得分: ",
     "hide_times": "躲藏次数: ",
     "hit_times": "受击次数: ",
 
     "second_lap": "第一次通关！",
-    "second_lap_desc": "第一次通关"
+    "second_lap_desc": "第一次通关",
+    "shinobi": "忍者",
+    "shinobi_desc": "在最终阶段前不被笑靥发现",
+    "icecream": "三倍丸子冰激凌",
+    "icecream_desc": "在倒计时后的狂暴阶段",
+    "prize_first": "一等奖",
+    "prize_first_desc": "在被笑靥仇恨状态下从箱子里被抓住",
+    "prize_special": "特等奖",
+    "prize_special_desc": "在未被笑靥仇恨状态下从箱子里被抓住",
+    "masochist": "受虐狂",
+    "masochist_desc":"被击中十次以上通关",
+    "how_old_are_you": "怎么老是你",
+    "how_old_are_you_desc": "拉响十次以上的警报"
 }

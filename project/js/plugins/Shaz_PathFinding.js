@@ -31,12 +31,14 @@
 
     if (command.toUpperCase() === 'SMARTPATH') {
       subject = this.character(eval(args[0]));
-      if (args[1].toUpperCase() === 'CANCEL') {
-        subject.clearTarget();
-      } else if (args.length > 2) {
-        subject.setTarget(null, eval(args[1]), eval(args[2]));
-      } else {
-        subject.setTarget(this.character(eval(args[1])));
+      if(subject){
+        if (args[1].toUpperCase() === 'CANCEL') {
+          subject.clearTarget();
+        } else if (args.length > 2) {
+          subject.setTarget(null, eval(args[1]), eval(args[2]));
+        } else {
+          subject.setTarget(this.character(eval(args[1])));
+        }
       }
     }
   };

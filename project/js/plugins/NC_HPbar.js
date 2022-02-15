@@ -155,4 +155,12 @@ NC_HPBar.prototype.hide = function(){
 	}
 }
 
+NC_HPBar.prototype.stopChanging = function(){
+	this.value = this.displayValue;
+}
+
 SmileManager.HPBarInstance = new NC_HPBar();
+SmileManager.stopChanging = function(){
+	SmileManager.HPBarInstance.stopChanging();
+	SmileManager.HPBarInstance.opacity = 0;
+}

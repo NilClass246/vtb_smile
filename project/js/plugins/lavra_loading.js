@@ -137,6 +137,12 @@
                 context.globalAlpha = ((this._loadingCount - 20) / 30).clamp(0, 1);
                 drawBackground(context, this._loadingBack);
                 drawImage(context, this._loadingImage);
+                context.font = "bold 30px arial";
+                context.fillStyle = "red";
+                if(PreloadManager&&PreloadManager._filesTotal
+                    ){
+                    context.fillText("DOWNLOADING..."+PreloadManager._filesLoaded + "/" + PreloadManager._filesTotal,20,Graphics.boxHeight-40);
+                }
                 context.restore();
             }
         }

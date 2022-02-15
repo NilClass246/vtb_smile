@@ -1,4 +1,14 @@
 {
+    "repaired_generators": "修复的电机数: ",
+    "warning_times": "触发警报次数: ",
+    "time_elapsed": "游戏耗时: ",
+    "score":"分数: ",
+    "hide_times": "躲藏次数: ",
+    "hit_times": "受击次数: ",
+
+    "second_lap": "第一次通关！",
+    "second_lap_desc": "第一次通关",
+    
     "achievement":"成就",
     "gain_achievement":"成就を得ました！",
     "hidden_achievement":"（成就を得ません）",

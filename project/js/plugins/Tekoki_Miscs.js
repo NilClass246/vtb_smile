@@ -81,7 +81,7 @@ BirthdayManager.loadAutoSave = function(){
 }
 
 //版本控制
-BirthdayManager.version = "V0.03"
+BirthdayManager.version = "V1.00"
 
 function Sprite_Version(){
     this.initialize.apply(this, arguments);
@@ -1464,7 +1464,7 @@ Window_TitleCommand.prototype.windowWidth = function() {
 
 BirthdayManager.temps._Window_TitleCommand_prototype_makeCommandList = Window_TitleCommand.prototype.makeCommandList;
 Window_TitleCommand.prototype.makeCommandList = function() {
-    this.addCommand("{interface_language}","chooseLanguage");
+    //this.addCommand("{interface_language}","chooseLanguage");
     BirthdayManager.temps._Window_TitleCommand_prototype_makeCommandList.call(this);
     //this.addCommand("{interface_language}","chooseLanguage");
     //this.addCommand("{credits}",  'credits');
