@@ -591,7 +591,7 @@ Window_Score.prototype.drawThings = function(){
     this.drawText("{repaired_generators}"+$gameVariables.value(47), 0, 0*28);
     this.drawText("{warning_times}"+$gameVariables.value(25), 0, 1*28);
     this.drawText("{hide_times}"+$gameVariables.value(26), 0, 2*28);
-    this.drawText("{hit_times}"+$gameVariables.value(27), 0, 3*28);
+    this.drawText("{hit_times}"+$gameVariables.value(27)+"{hit_times_2}", 0, 3*28);
     var time = SmileManager.TC._frames;
     this.drawText("{time_elapsed}"+SmileManager.calcTime(time), 0, 5*28);
     this.drawText("{score}"+this.calcScore(), 0, 6*28);

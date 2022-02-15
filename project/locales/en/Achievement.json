@@ -1,18 +1,30 @@
 {
-    "repaired_generators": "修复的电机数: ",
-    "warning_times": "触发警报次数: ",
-    "time_elapsed": "游戏耗时: ",
-    "score":"分数: ",
-    "hide_times": "躲藏次数: ",
-    "hit_times": "受击次数: ",
-
-    "second_lap": "第一次通关！",
-    "second_lap_desc": "第一次通关",
-    
-    
-    
+  
     "achievement":"Achievement",
     "gain_achievement":"Achievement get!",
     "hidden_achievement":"(Unattained)",
-    "close":"Close"
+    "close":"Close",
+
+    "repaired_generators": "Alternators Repaired: ",
+    "warning_times": "Alarms Triggered: ",
+    "time_elapsed": "Gaming Time: ",
+    "score":"Score:",
+    "hide_times": "Hiding: ",
+    "hit_times": "Got ",
+    "hit_times_2": " Hits",
+
+    "second_lap": "First Clear",
+    "second_lap_desc": "First Clear",
+    "shinobi": "Ninja",
+    "shinobi_desc": "Not spotted by \"the smiling face\" before the final stage.",
+    "icecream": "Three ball ice cream",
+    "icecream_desc": "Rage phase after the countdown",
+    "prize_first": "First Prize",
+    "prize_first_desc": "Being caught from a box with hatred state of \"the smiling face\"",
+    "prize_special": "Special Prize",
+    "prize_special_desc": "Being caught from a box with no hatred of \"the smiling face\"",
+    "masochist": "Masochist",
+    "masochist_desc":"Clear after being hit over 10 times",
+    "how_old_are_you": "Why it is always you",
+    "how_old_are_you_desc": "Pull alarms over 10 times."
 }

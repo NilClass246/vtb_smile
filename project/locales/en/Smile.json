@@ -1,20 +1,20 @@
 {
-    "repairing": "修理中",
-    "task_1": "修好所有发电机。",
-    "task_1_prev": "剩余发电机：",
-    "task_2": "电机都修复完成了\n快离开！",
-    "victory": "成功逃脱！",
+    "repairing": "Under repair",
+    "task_1": "Repair all the alternators to open the underpass",
+    "task_1_prev": "Remaining Alternators:",
+    "task_2": "An underpass somewhere is opened, exit now!",
+    "victory": "Escaped!",
 
     "opening_1": "Why is that? \nSince I just wanted to take a shortcut and go home before sunset.",
     "opening_2": "Mea goes step by step. It feels like something wierd peeping at her in the darkness, which makes her really unconfortable.",
     "opening_3":"She wanted to leave, but it's impossible, as all the exits of the town have been blocked, even the gate she came through was shut as powerless, and its too heavy for her to push.",
     "opening_4":"She tried switching on the brake, but there's no responce, it seems power here is failed. The only good thing is that she found some generators when looking for other exits, they're old, but seems to be useful. ",
-    "opening_5":"The sun is completely set, only several meters range is visual. Suddenly, sound like laughter of a woman come from the other end of the town. The wild laughter along with wind pierced her eardrum, resounded in her brain.",
+    "opening_5":"The sun is completely set, only several meters range is visual. Suddenly, sound like scream of a woman come from the other end of the town. The wild laughter along with wind pierced her eardrum, resounded in her brain.",
     "opening_6":"All of a shock, Mea knocked down the pile of rubbish alongside the street. Rubbish floods with brown sewage and smell of the rotten, blocked half of the way.",
     "opening_7":"Mea pulled her foot pressed under junk after some time of shock. She walked away, leaving a trail of footprints. Feeling terrified, she'd just like to find out the generator and leave.",
     "opening_8":"But soon she comes back. What she found is a footprint, with opposite direction towards those her left and still not faded.",
     "opening_9":"\"Is this carelessly stepped by me?\"\nShe stopped thinking, hasten away to find those generators, the final hope, maybe.",
 
-    "skip": "要跳过剧情吗？",
-    "discovered":"你被发现了！\n进入集装箱内避开笑靥"
+    "skip": "Would you like to skip the plot?",
+    "discovered":"You are spotted! Use containers to avoid \"the smiling face\""
 }
